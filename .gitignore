@@ -127,3 +127,34 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# vscode
+.vscode/
+
+# configs file
+config.py
+
+# glove
+glove.twitter.27B/
+
+# pylintrc
+.pylintrc
+
+# results files
+logs/
+results/
+model_states/
+
+# data
+datasets/
+processed_data/
+
+# temp
+temp/
+temp.py
+
+# macOS
+.DS_Store
+
+# misc
+run_rsync.sh
