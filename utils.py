@@ -1,19 +1,9 @@
 import logging
-import os
-import sys
 import time
 from datetime import datetime
 
 from urllib.parse import urlparse
 from tqdm import tqdm
-
-
-"""Solve import issue"""
-current_file_dir = os.path.dirname(os.path.abspath(__file__))
-project_root_dir = current_file_dir
-sys.path.append(current_file_dir)
-sys.path.append(project_root_dir)
-"""------------------"""
 
 
 def program_sleep(sec, print_progress=True):

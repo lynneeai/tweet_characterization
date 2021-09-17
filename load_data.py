@@ -1,9 +1,5 @@
-import csv
 import logging
-import math
 import os
-import pickle
-import random
 
 import torch
 import pandas as pd
@@ -28,8 +24,8 @@ tqdm.pandas()
 
 
 class ImageTextDataset(torch.utils.data.Dataset):
-    def __init__(self, tsv_file_path, image_dir, image_size=224, transformer=None):
-        super().__init__()
+    def __init__(self, tsv_file_path, image_dir, image_size=224, transformer=transforms.Compose([ToTensor()])):
+        super(ImageTextDataset, self).__init__()
         
         self.image_dir = image_dir
         self.image_size = image_size
@@ -51,7 +47,7 @@ class ImageTextDataset(torch.utils.data.Dataset):
             image = self.transformer(image)
             
         sample = {
-            "image_path": f"{self.image_dir}/{self.df['id'][idx]}.jpg",
+            "image_file": f"{self.image_dir}/{self.df['id'][idx]}.jpg",
             "image": image,
             "text": self.df["text"][idx],
             "label": self.df["label"][idx],
@@ -62,9 +58,9 @@ class ImageTextDataset(torch.utils.data.Dataset):
         
     def load_image(self, idx):
         id = self.df["id"][idx]
-        image_path = f"{self.image_dir}/{id}.jpg"
+        image_file = f"{self.image_dir}/{id}.jpg"
         # open image
-        image = Image.open(image_path).resize((self.image_size, self.image_size), Image.ANTIALIAS).convert("RGB")
+        image = Image.open(image_file).resize((self.image_size, self.image_size), Image.ANTIALIAS).convert("RGB")
         return image
     
     
@@ -80,30 +76,32 @@ def load_dataloaders():
     return train_dataloader, dev_dataloader, test_dataloader
 
 
-test_dataset = ImageTextDataset(
-    tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/test.tsv", 
-    image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/test", 
-    transformer=transforms.Compose([
-        transforms.ToTensor()
-    ])
-)
-test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=True)
+# test_dataset = ImageTextDataset(
+#     tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/test.tsv", 
+#     image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/test", 
+#     transformer=transforms.Compose([
+#         transforms.ToTensor()
+#     ])
+# )
+# test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=True)
 
-from transformers import CLIPTokenizer, CLIPProcessor, CLIPModel
+# from transformers import CLIPTokenizer, CLIPProcessor, CLIPModel
 
-model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+# model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+# processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+# tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 
-for items in test_dataloader:
-    image_inputs = items["image"]
-    image_features = model.get_image_features(image_inputs)
-    print(image_features)
+# for items in test_dataloader:
     
-    image_paths = items["image_path"]
-    images = [Image.open(ip).convert("RGB") for ip in image_paths]
-    image_inputs = processor(images=images, return_tensors="pt")
-    image_features = model.get_image_features(**image_inputs)
-    print(image_features)
+#     image_file = items["image_file"]
+#     images = [Image.open(ip).convert("RGB") for ip in image_file]
+#     image_inputs = processor(images=images, return_tensors="pt")
+#     image_features = model.get_image_features(**image_inputs)
+#     print(image_features.shape)
     
-    break
+#     texts = items["text"]
+#     text_inputs = tokenizer(texts,  padding=True, return_tensors="pt")
+#     text_features = model.get_text_features(**text_inputs)
+#     print(text_features.shape)
+    
+#     break
