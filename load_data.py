@@ -7,7 +7,9 @@ import random
 
 import torch
 import pandas as pd
+from torchvision.transforms.transforms import ToTensor
 from tqdm import tqdm
+from torchvision import transforms
 from torch.utils.data import DataLoader
 from PIL import Image
 
@@ -26,10 +28,12 @@ tqdm.pandas()
 
 
 class ImageTextDataset(torch.utils.data.Dataset):
-    def __init__(self, tsv_file_path, image_dir):
+    def __init__(self, tsv_file_path, image_dir, image_size=224, transformer=None):
         super().__init__()
         
         self.image_dir = image_dir
+        self.image_size = image_size
+        self.transformer = transformer
         
         # load dataframe
         self.df = pd.read_csv(tsv_file_path, sep="\t", encoding="utf-8")
@@ -42,18 +46,25 @@ class ImageTextDataset(torch.utils.data.Dataset):
         return len(self.df)
         
     def __getitem__(self, idx):
-        return {
-            "image": self.load_image(idx),
+        image = self.load_image(idx)
+        if self.transformer:
+            image = self.transformer(image)
+            
+        sample = {
+            "image_path": f"{self.image_dir}/{self.df['id'][idx]}.jpg",
+            "image": image,
             "text": self.df["text"][idx],
             "label": self.df["label"][idx],
             "label_name": self.df["label_name"][idx]
         }
         
+        return sample
+        
     def load_image(self, idx):
         id = self.df["id"][idx]
         image_path = f"{self.image_dir}/{id}.jpg"
         # open image
-        image = Image.open(image_path).convert("RGB")
+        image = Image.open(image_path).resize((self.image_size, self.image_size), Image.ANTIALIAS).convert("RGB")
         return image
     
     
@@ -69,7 +80,30 @@ def load_dataloaders():
     return train_dataloader, dev_dataloader, test_dataloader
 
 
-test_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/test.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/test")
-test_dataloader = DataLoader(test_dataset, batch_size=TRAIN_CONFIG.BATCH_SIZE, shuffle=True)
+test_dataset = ImageTextDataset(
+    tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/test.tsv", 
+    image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/test", 
+    transformer=transforms.Compose([
+        transforms.ToTensor()
+    ])
+)
+test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=True)
+
+from transformers import CLIPTokenizer, CLIPProcessor, CLIPModel
+
+model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+
 for items in test_dataloader:
-    print(items["id"])
+    image_inputs = items["image"]
+    image_features = model.get_image_features(image_inputs)
+    print(image_features)
+    
+    image_paths = items["image_path"]
+    images = [Image.open(ip).convert("RGB") for ip in image_paths]
+    image_inputs = processor(images=images, return_tensors="pt")
+    image_features = model.get_image_features(**image_inputs)
+    print(image_features)
+    
+    break
