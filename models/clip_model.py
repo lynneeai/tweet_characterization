@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
-from transformers import CLIPConfig, CLIPTokenizer, CLIPProcessor, CLIPModel
+from transformers import CLIPTokenizer, CLIPProcessor, CLIPModel
 
 """Solve import issue"""
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,13 +23,13 @@ class CLIP_MODEL(nn.Module):
         
         self.device = device
         
-        self.clip_config = CLIPConfig()
         self.clip = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+        self.clip.config.text_config.max_position_embeddings = 512
         self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
         self.clip_tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
         
-        self.image_enc = nn.Linear(self.clip_config.projection_dim, 128)
-        self.text_enc = nn.Linear(self.clip_config.projection_dim, 128)
+        self.image_enc = nn.Linear(self.clip.config.projection_dim, 128)
+        self.text_enc = nn.Linear(self.clip.config.projection_dim, 128)
         
         self.image_text_layer = nn.Linear(256, 64)
         self.out = nn.Linear(64, len(TRAIN_CONFIG.LABEL_NAMES))
@@ -50,3 +50,5 @@ class CLIP_MODEL(nn.Module):
         output = F.log_softmax(output, dim=1)
         
         return output
+    
+clip = CLIP_MODEL()
