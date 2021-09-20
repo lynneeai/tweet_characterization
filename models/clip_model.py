@@ -21,8 +21,8 @@ class CLIP_MODEL(nn.Module):
     def __init__(self):
         super(CLIP_MODEL, self).__init__()
         
-        self.clip = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
         self.clip_config = CLIPConfig()
+        self.clip = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
         self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
         self.clip_tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
         
@@ -34,15 +34,15 @@ class CLIP_MODEL(nn.Module):
         
     def forward(self, image_files, texts):
         images = [Image.open(im).convert("RGB") for im in image_files]
-        image_inputs = self.clip_processor(images=images, return_tensor="pt")
-        text_inputs = self.clip_tokenizer(texts, padding=True, return_tensors="pt")
-        
+        image_inputs = self.clip_processor(images=images, return_tensors="pt")
         image_features = self.clip.get_image_features(**image_inputs)
+        
+        text_inputs = self.clip_tokenizer(texts, padding=True, return_tensors="pt")
         text_features = self.clip.get_text_features(**text_inputs)
         
         image_enc = F.relu(self.image_enc(image_features))
         text_enc = F.relu(self.text_enc(text_features))
-        image_text_feats = F.relu(self.image_text_layer(torch.cat((image_enc, text_enc), dim=0)))
+        image_text_feats = F.relu(self.image_text_layer(torch.cat((image_enc, text_enc), dim=1)))
         
         output = self.out(image_text_feats)
         output = F.log_softmax(output, dim=1)
