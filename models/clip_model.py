@@ -50,5 +50,3 @@ class CLIP_MODEL(nn.Module):
         output = F.log_softmax(output, dim=1)
         
         return output
-    
-clip = CLIP_MODEL()
