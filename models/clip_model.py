@@ -18,8 +18,10 @@ from config import TRAIN_CONFIG
 
 
 class CLIP_MODEL(nn.Module):
-    def __init__(self):
+    def __init__(self, device=TRAIN_CONFIG.DEVICE):
         super(CLIP_MODEL, self).__init__()
+        
+        self.device = device
         
         self.clip_config = CLIPConfig()
         self.clip = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -34,10 +36,10 @@ class CLIP_MODEL(nn.Module):
         
     def forward(self, image_files, texts):
         images = [Image.open(im).convert("RGB") for im in image_files]
-        image_inputs = self.clip_processor(images=images, return_tensors="pt")
+        image_inputs = self.clip_processor(images=images, return_tensors="pt").to(self.device)
         image_features = self.clip.get_image_features(**image_inputs)
         
-        text_inputs = self.clip_tokenizer(texts, padding=True, return_tensors="pt")
+        text_inputs = self.clip_tokenizer(texts, padding=True, return_tensors="pt").to(self.device)
         text_features = self.clip.get_text_features(**text_inputs)
         
         image_enc = F.relu(self.image_enc(image_features))
