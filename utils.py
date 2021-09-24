@@ -43,3 +43,9 @@ def init_logger(log_folder, log_filename, timestamp=True):
         console.setFormatter(log_formatter)
         logging.getLogger().addHandler(console)
     """---------------------------------"""
+    
+
+def boolean_string(s):
+    if s.lower() not in {"false", "true", "t", "f"}:
+        raise ValueError('Not a valid boolean string')
+    return s.lower() == "true" or s.lower() == "t"

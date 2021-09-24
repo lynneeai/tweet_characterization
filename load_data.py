@@ -49,7 +49,7 @@ class ImageTextDataset(torch.utils.data.Dataset):
         sample = {
             "image_file": f"{self.image_dir}/{self.df['id'][idx]}.jpg",
             "image": image,
-            "text": self.df["text"][idx],
+            "text": self.df["text"][idx][:77],
             "label": torch.tensor(self.df["label"][idx]),
             "label_name": self.df["label_name"][idx]
         }
@@ -67,9 +67,9 @@ class ImageTextDataset(torch.utils.data.Dataset):
 def load_dataloaders(batch_size):
     LOGGER.info("Loading train/test/validate dataloaders...")
     
-    train_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/train.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/train")
-    validate_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/validate.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/validate")
-    test_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/test.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/test")
+    train_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/train_binary.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/train")
+    validate_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/validate_binary.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/validate")
+    test_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/test_binary.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/test")
     
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     validate_dataloader = DataLoader(validate_dataset, batch_size=batch_size, shuffle=True)

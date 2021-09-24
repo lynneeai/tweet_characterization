@@ -1,7 +1,9 @@
+import argparse
 import csv
 import os
 import string
 import sys
+import random
 
 from collections import defaultdict
 from nltk.stem import WordNetLemmatizer
@@ -103,14 +105,83 @@ def preselect_batch(batch_name):
                     tsv_writer.writerow(sample)
                     
     return selected_samples
+
+
+def exclude_true(tsv_file):
+    output_tsv_file = f"{tsv_file[:-4]}_notrue.tsv"
+    with open(output_tsv_file, "w") as outfile:
+        tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=["id", "text", "domain", "label"])
+        tsv_writer.writeheader()
+        with open(tsv_file, "r") as infile:
+            tsv_reader = csv.DictReader(infile, delimiter="\t")
+            for row in tsv_reader:
+                if int(row["label"]) != 0:
+                    tsv_writer.writerow({
+                        "id": row["id"],
+                        "text": row["text"],
+                        "domain": row["domain"],
+                        "label": int(row["label"]) - 1
+                    })
+                    
+                    
+def select_binary(tsv_file):
+    output_tsv_file = f"{tsv_file[:-4]}_binary.tsv"
+    
+    label_rows_dict = defaultdict(list)
+    with open(tsv_file, "r") as infile:
+        tsv_reader = csv.DictReader(infile, delimiter="\t")
+        for row in tsv_reader:
+            label_rows_dict[int(row["label"])].append(row)
+
+    malicious_list = label_rows_dict[2] + label_rows_dict[4] + label_rows_dict[5]
+    benign_list = label_rows_dict[1] + label_rows_dict[3]
+    
+    true_list = label_rows_dict[0]
+    random.shuffle(true_list)
+    benign_list += true_list[:(len(malicious_list) - len(benign_list))]
+    
+    with open(output_tsv_file, "w") as outfile:
+        tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=["id", "text", "domain", "label"])
+        tsv_writer.writeheader()
+        for row in benign_list:
+            tsv_writer.writerow({
+                "id": row["id"],
+                "text": row["text"],
+                "domain": row["domain"],
+                "label": 0
+            })
+        for row in malicious_list:
+            tsv_writer.writerow({
+                "id": row["id"],
+                "text": row["text"],
+                "domain": row["domain"],
+                "label": 1
+            })
         
 
 if __name__ == "__main__":
-    for batch_name in ["train", "validate", "test"]:
-        print(f"preselect batch {batch_name}...")
-        selected_samples = preselect_batch(batch_name)
-        os.makedirs(f"{SELECTED_IMAGES_FOLDER}/{batch_name}")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--task", default="default", choices=["default", "notrue", "binary"])
+    args = parser.parse_args()
+    
+    if args.task == "notrue":
         for dataset in ["covid19", "climate_change", "military_vehicles"]:
-            for label in range(6):
-                for sample in selected_samples[dataset][label]:
-                    os.system(f"cp {DATASET_FOLDER}/images/{batch_name}/{sample['id']}.jpg {SELECTED_IMAGES_FOLDER}/{batch_name}")
+            for batch_name in ["train", "validate", "test"]:
+                tsv_file = f"{PROCESSED_DATA_FOLDER}/fakeddit_{dataset}/{batch_name}.tsv"
+                exclude_true(tsv_file)
+                
+    elif args.task == "binary":
+        for dataset in ["covid19", "climate_change", "military_vehicles"]:
+            for batch_name in ["train", "validate", "test"]:
+                tsv_file = f"{PROCESSED_DATA_FOLDER}/fakeddit_{dataset}/{batch_name}.tsv"
+                select_binary(tsv_file)
+        
+    else:
+        for batch_name in ["train", "validate", "test"]:
+            print(f"preselect batch {batch_name}...")
+            selected_samples = preselect_batch(batch_name)
+            os.makedirs(f"{SELECTED_IMAGES_FOLDER}/{batch_name}")
+            for dataset in ["covid19", "climate_change", "military_vehicles"]:
+                for label in range(6):
+                    for sample in selected_samples[dataset][label]:
+                        os.system(f"cp {DATASET_FOLDER}/images/{batch_name}/{sample['id']}.jpg {SELECTED_IMAGES_FOLDER}/{batch_name}")

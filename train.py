@@ -131,7 +131,7 @@ class TRAINER(object):
             self.train_single_epoch()
             if self.curr_patience >= self.patience:
                 LOGGER.info(f"Epoch {self.curr_epoch} and patience {self.curr_patience}. Reloading the best model...")
-                self.model.load_state_dict(torch.load(self.model_states_file), map_location=self.device)
+                self.model.load_state_dict(torch.load(self.model_states_file, map_location=self.device))
                 self.adjust_learning_rate()
                 self.curr_patience = 0
         LOGGER.info(f"=======Finished training {self.epochs} epochs! Time elapsed: {np.round(time.time() - start_time, 5)}=======")
@@ -159,7 +159,7 @@ class TRAINER(object):
     def test(self):
         LOGGER.info("=======Testing model...=======")
         
-        self.model.load_state_dict(torch.load(self.model_states_file), map_location=self.device)
+        self.model.load_state_dict(torch.load(self.model_states_file, map_location=self.device))
         outputs, labels = self.pass_data_iteratively(self.test_dataloader)
         predicts = torch.max(outputs, 1)[1]
         predicts = predicts.data.cpu().numpy().tolist()
@@ -171,7 +171,7 @@ class TRAINER(object):
         LOGGER.info(class_report_str)
         
         # write to results file
-        with open(self.results_file, "r") as outfile:
+        with open(self.results_file, "w") as outfile:
             outfile.write(f"{class_report_str}\n")
         
         test_results_dict = {
@@ -190,6 +190,9 @@ if __name__ == "__main__":
     results_file = f"{TRAIN_CONFIG.RESULTS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}_class_report.txt"
     
     model = CLIP_MODEL().to(TRAIN_CONFIG.DEVICE)
+    if TRAIN_CONFIG.USE_PRETRAINED:
+        LOGGER.info(f"Loading pretrained model from {TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE}...")
+        model.load_state_dict(torch.load(TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE, map_location=TRAIN_CONFIG.DEVICE))
     
     trainer = TRAINER(
         model=model,
