@@ -35,9 +35,9 @@ def inference(model, image_file, text, threshold):
     llr_dict = LLR(scores[0])
     predict = predict_label(llr_dict["logLikelihoodRatio"], threshold)
     
-    # with open("LLR.jsonl", "w") as outfile:
-    #     json.dump(str(llr_dict), outfile)
-    #     outfile.write("\n")
+    with open("LLR.jsonl", "w") as outfile:
+        json.dump(str(llr_dict), outfile)
+        outfile.write("\n")
     
     return llr_dict, predict
 
@@ -51,11 +51,6 @@ def read_AOM(json_file):
 
 
 if __name__ == "__main__":
-    import csv
-    from tqdm import trange
-    from load_data import load_dataloaders
-    from sklearn.metrics import classification_report
-    from models import ModelWithTemperature
     
     model = torch.load("./trained_models/fakeddit_calibrated/clip.pth")
     
