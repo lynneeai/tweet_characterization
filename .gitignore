@@ -133,6 +133,7 @@ dmypy.json
 
 # configs file
 config.py
+*config.py
 
 # glove
 glove.twitter.27B/
@@ -143,11 +144,14 @@ glove.twitter.27B/
 # results files
 logs/
 results/
-model_states/
+trained_models/
 
 # data
 datasets/
 processed_data/
+*.tsv
+*.json
+*.jsonl
 
 # temp
 temp/

@@ -45,7 +45,7 @@ class CLIP_MODEL(nn.Module):
         text_enc = F.relu(self.text_enc(text_features))
         image_text_feats = F.relu(self.image_text_layer(torch.cat((image_enc, text_enc), dim=1)))
         
-        output = self.out(image_text_feats)
-        output = F.log_softmax(output, dim=1)
+        logits = self.out(image_text_feats)
+        output = F.log_softmax(logits, dim=1)
         
-        return output
+        return output, logits
