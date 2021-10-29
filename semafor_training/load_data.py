@@ -62,7 +62,7 @@ class ImageTextDataset(torch.utils.data.Dataset):
             
         sample = {
             "tid": self.df["tid"][idx],
-            "text": self.df["text"][idx][:77],
+            "text": self.df["text"][idx],
             "image_file": self.df["image_file"][idx],
             "image": image,
             "label": torch.tensor(self.df["label"][idx]),

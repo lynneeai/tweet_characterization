@@ -54,6 +54,10 @@ class CLIP_MODEL(nn.Module):
         image_features = self.clip.get_image_features(**image_inputs)
         
         text_inputs = self.clip_tokenizer(texts, padding=True, return_tensors="pt").to(self.device)
+        # input sequence length <= 77
+        if text_inputs["input_ids"].size(dim=1) > 77:
+            text_inputs["input_ids"] = torch.narrow(text_inputs["input_ids"], 1, 0, 77) 
+            text_inputs["attention_mask"] = torch.narrow(text_inputs["attention_mask"], 1, 0, 77) 
         text_features = self.clip.get_text_features(**text_inputs)
         
         image_enc = F.relu(self.image_enc(image_features))
