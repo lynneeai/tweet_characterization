@@ -11,8 +11,8 @@ from tqdm import trange
 from transformers import AdamW
 
 from config import TRAIN_CONFIG
-from utils import init_logger
-from utils import program_sleep
+from util_scripts.utils import init_logger
+from util_scripts.utils import program_sleep
 from models import CLIP_MODEL
 
 """Make directories"""

@@ -16,7 +16,7 @@ sys.path.append(current_file_dir)
 sys.path.append(project_root_dir)
 """------------------"""
 
-from utils import init_logger
+from util_scripts.utils import init_logger
 from load_data import load_dataloaders
 from models import CLIP_MODEL, ModelWithTemperature
 from calibrate_config import CALIBRATE_CONFIG
