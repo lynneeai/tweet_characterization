@@ -43,7 +43,7 @@ for intent in ["polar", "call_to_action", "viral", "sarcasm"]:
                     tid2obj[tid] = {
                         "tid": tid,
                         "text": row["text"],
-                        "image_file": f"{DATASETS_FOLDER}/{intent}_images/{tid}.jpg",
+                        "image_file": f"datasets/covid19/{intent}_images/{tid}.jpg",
                         "label": LABEL_NAME_DICT[label_name],
                         "label_name": label_name,
                         "POLAR": 0,

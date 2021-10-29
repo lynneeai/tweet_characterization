@@ -113,7 +113,9 @@ def create_partitions(train_split=TRAIN_CONFIG.TRAIN_SPLIT, dev_split=TRAIN_CONF
             tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=["tid", "text", "image_file", "label", "label_name", "POLAR", "CALL_TO_ACTION", "VIRAL", "SARCASM"])
             tsv_writer.writeheader()
             for idx in batch_idx:
-                tsv_writer.writerow(tweet_obj_list[idx])
+                tweet_obj = tweet_obj_list[idx]
+                tweet_obj["image_file"] = f"{project_root_dir}/{tweet_obj['image_file']}"
+                tsv_writer.writerow(tweet_obj)
                 outfile.flush()
                 
 
