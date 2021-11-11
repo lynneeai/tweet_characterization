@@ -21,10 +21,10 @@ CTA_HASHTAGS_FILE = "./cta_hashtags.txt"
 SARCASM_FOLDER = f"{project_root_dir}/datasets/covid19/sarcasm_tweets"
 
 # output files
-VIRAL_FILE = f"{project_root_dir}/datasets/covid19/viral.tsv"
-POLAR_FILE = f"{project_root_dir}/datasets/covid19/polar.tsv"
-CTA_FILE = f"{project_root_dir}/datasets/covid19/call_to_action.tsv"
-SARCASM_FILE = f"{project_root_dir}/datasets/covid19/sarcasm.tsv"
+VIRAL_FILE = f"{project_root_dir}/datasets/covid19/tweets/viral.tsv"
+POLAR_FILE = f"{project_root_dir}/datasets/covid19/tweets/polar.tsv"
+CTA_FILE = f"{project_root_dir}/datasets/covid19/tweets/call_to_action.tsv"
+SARCASM_FILE = f"{project_root_dir}/datasets/covid19/tweets/sarcasm.tsv"
 
 
 def remove_url(txt):

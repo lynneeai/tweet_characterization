@@ -48,6 +48,10 @@ class CLIP_MODEL(nn.Module):
         self.sarcasm_output_layer = nn.Linear(256, 64)
         self.sarcasm_out = nn.Linear(64, output_size)
         
+        # humor output
+        self.humor_output_layer = nn.Linear(256, 64)
+        self.humor_out = nn.Linear(64, output_size)
+        
     def forward(self, image_files, texts):
         images = [Image.open(im).convert("RGB") for im in image_files]
         image_inputs = self.clip_processor(images=images, return_tensors="pt").to(self.device)
@@ -88,12 +92,18 @@ class CLIP_MODEL(nn.Module):
         sarcasm_logits = self.sarcasm_out(sarcasm_enc)
         sarcasm_outputs = F.log_softmax(sarcasm_logits, dim=1)
         
+        # humor output
+        humor_enc = F.relu(self.humor_output_layer(torch.cat((image_enc, text_enc), dim=1)))
+        humor_logits = self.humor_out(humor_enc)
+        humor_outputs = F.log_softmax(humor_logits, dim=1)
+        
         # intent outputs dict
         intent_outputs_dict = {
             "POLAR": polar_outputs,
             "CALL_TO_ACTION": cta_outputs,
             "VIRAL": viral_outputs,
-            "SARCASM": sarcasm_outputs
+            "SARCASM": sarcasm_outputs,
+            "HUMOR": humor_outputs
         }
         
         return outputs, logits, intent_outputs_dict

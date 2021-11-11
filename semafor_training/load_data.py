@@ -51,6 +51,7 @@ class ImageTextDataset(torch.utils.data.Dataset):
         self.df["CALL_TO_ACTION"] = self.df["CALL_TO_ACTION"].astype(int)
         self.df["VIRAL"] = self.df["VIRAL"].astype(int)
         self.df["SARCASM"] = self.df["SARCASM"].astype(int)
+        self.df["HUMOR"] = self.df["HUMOR"].astype(int)
     
     def __len__(self):
         return len(self.df)
@@ -71,6 +72,7 @@ class ImageTextDataset(torch.utils.data.Dataset):
             "CALL_TO_ACTION": torch.tensor(self.df["CALL_TO_ACTION"][idx]),
             "VIRAL": torch.tensor(self.df["VIRAL"][idx]),
             "SARCASM": torch.tensor(self.df["SARCASM"][idx]),
+            "HUMOR": torch.tensor(self.df["HUMOR"][idx]),
         }
         
         return sample
@@ -110,7 +112,7 @@ def create_partitions(train_split=TRAIN_CONFIG.TRAIN_SPLIT, dev_split=TRAIN_CONF
     # write to tsv files
     for batch_name, batch_idx in [("train", train_idx), ("dev", dev_idx), ("test", test_idx)]:
         with open(f"{TRAIN_CONFIG.TSV_ROOT}/{batch_name}.tsv", "w") as outfile:
-            tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=["tid", "text", "image_file", "label", "label_name", "POLAR", "CALL_TO_ACTION", "VIRAL", "SARCASM"])
+            tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=["tid", "text", "image_file", "label", "label_name", "POLAR", "CALL_TO_ACTION", "VIRAL", "SARCASM", "HUMOR"])
             tsv_writer.writeheader()
             for idx in batch_idx:
                 tweet_obj = tweet_obj_list[idx]
