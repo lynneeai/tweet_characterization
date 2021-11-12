@@ -3,9 +3,11 @@ import os
 import re
 import json
 import sys
+import PIL
 import pycld2 as cld2
 from collections import defaultdict
 from pprint import pprint
+from PIL import Image
 
 """Solve import issue"""
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,8 +32,12 @@ for intent in ["polar", "call_to_action", "viral", "sarcasm", "humor"]:
     tweets_with_image = set()
     for image in os.scandir(f"{DATASETS_FOLDER}/images/{intent}_images/"):
         if image.name.endswith(".jpg"):
-            tid = image.name.split(".")[0]
-            tweets_with_image.add(tid)
+            try:
+                opened_image = Image.open(image.path)
+                tid = image.name.split(".")[0]
+                tweets_with_image.add(tid)
+            except PIL.UnidentifiedImageError:
+                pass
     
     with open(f"{DATASETS_FOLDER}/tweets/{intent}.tsv", "r") as infile:
         tsv_reader = csv.DictReader(infile, delimiter = "\t")
@@ -59,8 +65,12 @@ for account in ["CDCgov", "JHSPH_CHS", "WHO", "UN", "CDCMMWR", "CDCtravel"]:
     tweets_with_image = set()
     for image in os.scandir(f"{DATASETS_FOLDER}/images/{account}_images/"):
         if image.name.endswith(".jpg"):
-            tid = image.name.split(".")[0]
-            tweets_with_image.add(tid)
+            try:
+                opened_image = Image.open(image.path)
+                tid = image.name.split(".")[0]
+                tweets_with_image.add(tid)
+            except PIL.UnidentifiedImageError:
+                pass
     with open(f"{DATASETS_FOLDER}/tweets/{account}.tsv", "r")  as infile:
         tsv_reader = csv.DictReader(infile, delimiter = "\t")
         for row in tsv_reader:
