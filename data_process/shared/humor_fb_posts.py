@@ -13,8 +13,13 @@ sys.path.append(project_root_dir)
 
 from data_process.covid19.select_tweets import remove_url, is_english
 
-DATASETS_FOLDER = f"{project_root_dir}/datasets/covid19"
-PROCESSED_DATA_FOLDER = f"{project_root_dir}/processed_data/covid19"
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--dataset", required=True, choices=["covid19", "climate", "military"])
+args = parser.parse_args()
+
+DATASETS_FOLDER = f"{project_root_dir}/datasets/{args.dataset}"
+PROCESSED_DATA_FOLDER = f"{project_root_dir}/processed_data/{args.dataset}"
 
 # input files
 FB_CSV = f"{DATASETS_FOLDER}/fb_posts.csv"
@@ -32,13 +37,16 @@ with open(FB_CSV, "r") as infile:
         if type == "Photo":
             post_id = post_url.split("/")[-1]
             text = " ".join(remove_url(row["Message"]).split())
-            if text not in seen_text:
+            if text not in seen_text and is_english(text):
                 image_url = row["Link"]
                 haha = int(row["Haha"])
                 total_reaction = int(row["Love"]) + int(row["Wow"]) + int(row["Haha"]) + int(row["Sad"]) + int(row["Angry"]) + int(row["Care"])
-                humor_score = (haha / total_reaction) * math.tanh(total_reaction / 50)
-                fb_posts.append((post_id, text, image_url, humor_score))
-                seen_text.add(text)
+                try:
+                    humor_score = (haha / total_reaction) * math.tanh(total_reaction / 50)
+                    fb_posts.append((post_id, text, image_url, humor_score))
+                    seen_text.add(text)
+                except:
+                    continue
 
 fb_posts.sort(key=lambda x: x[-1], reverse=True)
 

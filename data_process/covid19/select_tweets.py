@@ -13,6 +13,8 @@ sys.path.append(current_file_dir)
 sys.path.append(project_root_dir)
 """------------------"""
 
+from util_scripts.utils import remove_url, is_english
+
 # input files
 JSONL_FOLDER = f"{project_root_dir}/datasets/covid19/avax-tweets-hydrated"
 MONTHS = ["2020-10", "2020-11", "2020-12", "2021-01", "2021-02", "2021-03", "2021-04"]
@@ -25,25 +27,6 @@ VIRAL_FILE = f"{project_root_dir}/datasets/covid19/tweets/viral.tsv"
 POLAR_FILE = f"{project_root_dir}/datasets/covid19/tweets/polar.tsv"
 CTA_FILE = f"{project_root_dir}/datasets/covid19/tweets/call_to_action.tsv"
 SARCASM_FILE = f"{project_root_dir}/datasets/covid19/tweets/sarcasm.tsv"
-
-
-def remove_url(txt):
-    return re.sub(r'https?://\S+', '', txt, flags=re.MULTILINE)
-
-
-def is_english(text):
-    try:
-        _, _, _, detected_language = cld2.detect(text, returnVectors=True)
-        all_english = True
-        for lang in detected_language:
-            lang = lang[-1]
-            if lang != "en":
-                all_english = False
-                break
-    except:
-        print(text)
-        return False
-    return all_english
 
 
 def is_retweet(tweet_obj):

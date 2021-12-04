@@ -121,10 +121,10 @@ def create_partitions(train_split=TRAIN_CONFIG.TRAIN_SPLIT, dev_split=TRAIN_CONF
                 outfile.flush()
                 
 
-def load_dataloaders(batch_size=TRAIN_CONFIG.BATCH_SIZE):
-    train_dataset = ImageTextDataset(f"{TRAIN_CONFIG.TSV_ROOT}/train.tsv")
-    dev_dataset = ImageTextDataset(f"{TRAIN_CONFIG.TSV_ROOT}/dev.tsv")
-    test_dataset = ImageTextDataset(f"{TRAIN_CONFIG.TSV_ROOT}/test.tsv")
+def load_dataloaders(batch_size=TRAIN_CONFIG.BATCH_SIZE, tsv_root=TRAIN_CONFIG.TSV_ROOT):
+    train_dataset = ImageTextDataset(f"{tsv_root}/train.tsv")
+    dev_dataset = ImageTextDataset(f"{tsv_root}/dev.tsv")
+    test_dataset = ImageTextDataset(f"{tsv_root}/test.tsv")
     
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)

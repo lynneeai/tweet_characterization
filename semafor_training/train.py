@@ -224,10 +224,15 @@ class TRAINER(object):
             intent_predicts = torch.max(intent_outputs_dict[intent], 1)[1]
             intent_predicts = intent_predicts.data.cpu().numpy().tolist()
             intent_labels = intents_dict[intent].data.cpu().numpy().tolist()
-            intent_cr_str = classification_report(intent_labels, intent_predicts, target_names=[f"NON-{intent}", intent], digits=5)
-            LOGGER.info(f"=============={intent} CLASS REPORT==============")
-            LOGGER.info(intent_cr_str)
-            outfile.write(f"{intent_cr_str}\n")
+            try:
+                intent_cr_str = classification_report(intent_labels, intent_predicts, target_names=[f"NON-{intent}", intent], digits=5)
+                LOGGER.info(f"=============={intent} CLASS REPORT==============")
+                LOGGER.info(intent_cr_str)
+                outfile.write(f"{intent_cr_str}\n")
+            except:
+                LOGGER.info(f"=============={intent} CLASS REPORT==============")
+                LOGGER.info(f"{intent} class does not have any positive samples!\n\n")
+                outfile.write(f"{intent} class does not have any positive samples!\n\n")
         
         outfile.close()
         
