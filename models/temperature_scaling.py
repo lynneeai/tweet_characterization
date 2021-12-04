@@ -29,8 +29,8 @@ class ModelWithTemperature(nn.Module):
     """
 
     def forward(self, image_files, texts):
-        logits = self.model(image_files, texts)[1]
-        return self.temperature_scale(logits), logits, None
+        _, logits, intent_outputs_dict = self.model(image_files, texts)
+        return self.temperature_scale(logits), logits, intent_outputs_dict
 
     def temperature_scale(self, logits):
         """
