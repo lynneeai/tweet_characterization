@@ -157,11 +157,32 @@ def select_binary(tsv_file):
                 "domain": row["domain"],
                 "label": 1
             })
+
+
+def merge_samples_for_calibration():
+    if not os.path.exists(f"{PROCESSED_DATA_FOLDER}/fakeddit_calibrated"):
+        os.makedirs(f"{PROCESSED_DATA_FOLDER}/fakeddit_calibrated")
+        
+    for batch_name in ["train", "validate", "test"]:
+        batch_tsv_file = f"{PROCESSED_DATA_FOLDER}/fakeddit_calibrated/{batch_name}_binary.tsv"
+        batch_outfile = open(batch_tsv_file, "w")
+        tsv_writer = csv.DictWriter(batch_outfile, delimiter="\t", fieldnames=["id", "text", "domain", "label"])
+        tsv_writer.writeheader()
+        id_set = set()
+        for dataset in ["covid19", "climate_change", "military_vehicles"]:
+            tsv_file = f"{PROCESSED_DATA_FOLDER}/fakeddit_{dataset}/{batch_name}_binary.tsv"
+            with open(tsv_file, "r") as infile:
+                tsv_reader = csv.DictReader(infile, delimiter="\t")
+                for row in tsv_reader:
+                    if row["id"] not in id_set:
+                        tsv_writer.writerow(dict(row))
+                        id_set.add(row["id"])
+        batch_outfile.close()
         
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--task", default="default", choices=["default", "notrue", "binary"])
+    parser.add_argument("-t", "--task", default="default", choices=["default", "notrue", "binary", "calibrate"])
     args = parser.parse_args()
     
     if args.task == "notrue":
@@ -175,7 +196,10 @@ if __name__ == "__main__":
             for batch_name in ["train", "validate", "test"]:
                 tsv_file = f"{PROCESSED_DATA_FOLDER}/fakeddit_{dataset}/{batch_name}.tsv"
                 select_binary(tsv_file)
-        
+    
+    elif args.task == "calibrate":
+        merge_samples_for_calibration()
+    
     else:
         for batch_name in ["train", "validate", "test"]:
             print(f"preselect batch {batch_name}...")

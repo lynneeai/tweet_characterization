@@ -11,8 +11,8 @@ from tqdm import trange
 from transformers import AdamW
 
 from config import TRAIN_CONFIG
-from utils import init_logger
-from utils import program_sleep
+from util_scripts.utils import init_logger
+from util_scripts.utils import program_sleep
 from models import CLIP_MODEL
 
 """Make directories"""
@@ -20,8 +20,8 @@ if not os.path.exists(TRAIN_CONFIG.LOGS_ROOT):
     os.makedirs(TRAIN_CONFIG.LOGS_ROOT)
 if not os.path.exists(TRAIN_CONFIG.RESULTS_ROOT):
     os.makedirs(TRAIN_CONFIG.RESULTS_ROOT)
-if not os.path.exists(TRAIN_CONFIG.MODEL_STATES_ROOT):
-    os.makedirs(TRAIN_CONFIG.MODEL_STATES_ROOT)
+if not os.path.exists(TRAIN_CONFIG.TRAINED_MODELS_ROOT):
+    os.makedirs(TRAIN_CONFIG.TRAINED_MODELS_ROOT)
 """------------------"""
 
 """Init logger"""
@@ -34,7 +34,7 @@ from load_data import load_dataloaders
 
 
 class TRAINER(object):
-    def __init__(self, model, batch_size, epochs, initial_lr, weight_decay, patience, device, model_states_file, results_file, label_names=TRAIN_CONFIG.LABEL_NAMES):
+    def __init__(self, model, batch_size, epochs, initial_lr, weight_decay, patience, device, model_states_file, model_file, results_file, label_names=TRAIN_CONFIG.LABEL_NAMES):
         super(TRAINER, self).__init__()
         
         self.model = model
@@ -42,9 +42,11 @@ class TRAINER(object):
         self.patience = patience
         self.device = device
         self.model_states_file = model_states_file
+        self.model_file = model_file
         self.results_file = results_file
         self.label_names = label_names
         
+        LOGGER.info("Loading train/test/validate dataloaders...")
         self.train_dataloader, self.validate_dataloader, self.test_dataloader = load_dataloaders(batch_size)
         self.optimizer = AdamW(
             self.model.parameters(),
@@ -65,7 +67,7 @@ class TRAINER(object):
             batch_image_files, batch_texts = batch_samples["image_file"], batch_samples["text"]
             batch_labels = batch_samples["label"].to(self.device)
             
-            batch_outputs = self.model(batch_image_files, batch_texts)
+            batch_outputs = self.model(batch_image_files, batch_texts)[0]
             
             outputs.append(batch_outputs.detach())
             labels.append(batch_labels)
@@ -95,7 +97,7 @@ class TRAINER(object):
             batch_image_files, batch_texts = batch_samples["image_file"], batch_samples["text"]
             batch_labels = batch_samples["label"].to(self.device)
             
-            batch_outputs = self.model(batch_image_files, batch_texts)
+            batch_outputs = self.model(batch_image_files, batch_texts)[0]
             batch_loss = F.nll_loss(batch_outputs, batch_labels)
             
             self.optimizer.zero_grad()
@@ -151,6 +153,7 @@ class TRAINER(object):
         if acc > self.best_validate_acc:
             self.best_validate_acc = acc
             torch.save(self.model.state_dict(), self.model_states_file)
+            torch.save(self.model, self.model_file)
             LOGGER.info(classification_report(labels, predicts, target_names=self.label_names, digits=5))
             LOGGER.info("Best model saved!")
         else:
@@ -186,7 +189,8 @@ class TRAINER(object):
     
     
 if __name__ == "__main__":
-    model_states_file = f"{TRAIN_CONFIG.MODEL_STATES_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.weights.best"
+    model_states_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.weights.best"
+    model_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.pth"
     results_file = f"{TRAIN_CONFIG.RESULTS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}_class_report.txt"
     
     model = CLIP_MODEL().to(TRAIN_CONFIG.DEVICE)
@@ -203,6 +207,7 @@ if __name__ == "__main__":
         patience=TRAIN_CONFIG.PATIENCE,
         device=TRAIN_CONFIG.DEVICE,
         model_states_file=model_states_file,
+        model_file=model_file,
         results_file=results_file
     )
     

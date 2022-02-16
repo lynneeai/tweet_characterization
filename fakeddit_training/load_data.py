@@ -10,15 +10,6 @@ from torch.utils.data import DataLoader
 from PIL import Image
 
 from config import TRAIN_CONFIG
-from utils import init_logger, program_sleep
-
-"""Init logger"""
-if not os.path.exists(TRAIN_CONFIG.LOGS_ROOT):
-    os.makedirs(TRAIN_CONFIG.LOGS_ROOT)
-log_filename = os.path.basename(__file__).split(".")[0]
-init_logger(TRAIN_CONFIG.LOGS_ROOT, log_filename)
-LOGGER = logging.getLogger(log_filename)
-"""------------------"""
 
 tqdm.pandas()
 
@@ -47,6 +38,7 @@ class ImageTextDataset(torch.utils.data.Dataset):
             image = self.transformer(image)
             
         sample = {
+            "id": self.df["id"][idx],
             "image_file": f"{self.image_dir}/{self.df['id'][idx]}.jpg",
             "image": image,
             "text": self.df["text"][idx][:77],
@@ -64,12 +56,10 @@ class ImageTextDataset(torch.utils.data.Dataset):
         return image
     
     
-def load_dataloaders(batch_size):
-    LOGGER.info("Loading train/test/validate dataloaders...")
-    
-    train_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/train_binary.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/train")
-    validate_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/validate_binary.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/validate")
-    test_dataset = ImageTextDataset(tsv_file_path=f"{TRAIN_CONFIG.TSV_ROOT}/test_binary.tsv", image_dir=f"{TRAIN_CONFIG.IMAGE_ROOT}/test")
+def load_dataloaders(batch_size, tsv_root=TRAIN_CONFIG.TSV_ROOT, image_dir=TRAIN_CONFIG.IMAGE_ROOT):
+    train_dataset = ImageTextDataset(tsv_file_path=f"{tsv_root}/train_binary.tsv", image_dir=f"{image_dir}/train")
+    validate_dataset = ImageTextDataset(tsv_file_path=f"{tsv_root}/validate_binary.tsv", image_dir=f"{image_dir}/validate")
+    test_dataset = ImageTextDataset(tsv_file_path=f"{tsv_root}/test_binary.tsv", image_dir=f"{image_dir}/test")
     
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     validate_dataloader = DataLoader(validate_dataset, batch_size=batch_size, shuffle=True)
