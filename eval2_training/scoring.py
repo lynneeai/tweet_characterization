@@ -1,11 +1,20 @@
 import csv
 import os
+import sys
 import torch
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import classification_report
+
+"""Solve import issue"""
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
+project_root_dir = f"{current_file_dir}/.."
+sys.path.append(current_file_dir)
+sys.path.append(project_root_dir)
+"""------------------"""
+
 from models import CLIP_MODEL, ModelWithTemperature
-from semafor_training.load_data import load_dataloaders
+from load_data import load_dataloaders
 from calibrate_config import CALIBRATE_CONFIG
 
 
@@ -79,7 +88,7 @@ if __name__ == "__main__":
         pbar = tqdm(total=60)
         for row in tsv_reader:
             labels.append(int(row["label"]))
-            _, predict, intents = inference(intent_model, row["image_file"], row["text"])
+            _, predict, intents = inference(intent_model, f"../{row['image_file']}", row["text"])
             preds.append(predict)
             tids.append(row["tid"])
             intents_list.append(intents)
@@ -89,9 +98,9 @@ if __name__ == "__main__":
     if not os.path.exists("./results/eval2"):
         os.makedirs("./results/eval2")
     class_report_str = classification_report(labels, preds, target_names=["BENIGN", "MALICIOUS"], digits=5)
-    with open("./results/eval2/class_report.txt", "w") as outfile:
+    with open("./results/eval2/clip_class_report.txt", "w") as outfile:
         outfile.write(class_report_str)
-    with open("./results/eval2/preds.tsv", "w") as outfile:
+    with open("./results/eval2/clip_preds.tsv", "w") as outfile:
         tsv_writer = csv.DictWriter(outfile, fieldnames=["tid", "label", "pred", "intents"], delimiter="\t")
         tsv_writer.writeheader()
         for idx, tid in enumerate(tids):

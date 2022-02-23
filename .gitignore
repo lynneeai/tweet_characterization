@@ -145,6 +145,7 @@ glove.twitter.27B/
 logs/
 results/
 trained_models/
+models/sentiment_model/
 
 # data
 datasets/

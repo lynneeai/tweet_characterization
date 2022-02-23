@@ -28,6 +28,8 @@ class CLIP_MODEL(nn.Module):
         self.image_enc = nn.Linear(self.clip.config.projection_dim, 128)
         self.text_enc = nn.Linear(self.clip.config.projection_dim, 128)
         
+        self.image_text_att = nn.Parameter(torch.Tensor(128, 1))
+        
         # maliciousness output
         self.output_layer = nn.Linear(256, 64)
         self.out = nn.Linear(64, output_size)
@@ -67,33 +69,39 @@ class CLIP_MODEL(nn.Module):
         image_enc = F.relu(self.image_enc(image_features))
         text_enc = F.relu(self.text_enc(text_features))
         
+        # attention
+        att_image = torch.mean(torch.matmul(image_enc, self.image_text_att), dim=0)
+        att_text = torch.mean(torch.matmul(text_enc, self.image_text_att), dim=0)
+        att_score = F.softmax(torch.cat((att_image, att_text), dim=0), dim=0)
+        feature_enc = att_score[0] * image_enc + att_score[1] * text_enc
+        
         # maliciousness output
-        enc = F.relu(self.output_layer(torch.cat((image_enc, text_enc), dim=1)))
+        enc = F.relu(self.output_layer(feature_enc))
         logits = self.out(enc)
         outputs = F.log_softmax(logits, dim=1)
         
         # polar output
-        polar_enc = F.relu(self.polar_output_layer(torch.cat((image_enc, text_enc), dim=1)))
+        polar_enc = F.relu(self.polar_output_layer(feature_enc))
         polar_logits = self.polar_out(polar_enc)
         polar_outputs = F.log_softmax(polar_logits, dim=1)
         
         # call_to_action output
-        cta_enc = F.relu(self.cta_output_layer(torch.cat((image_enc, text_enc), dim=1)))
+        cta_enc = F.relu(self.cta_output_layer(feature_enc))
         cta_logits = self.cta_out(cta_enc)
         cta_outputs = F.log_softmax(cta_logits, dim=1)
         
         # viral output
-        viral_enc = F.relu(self.viral_output_layer(torch.cat((image_enc, text_enc), dim=1)))
+        viral_enc = F.relu(self.viral_output_layer(feature_enc))
         viral_logits = self.viral_out(viral_enc)
         viral_outputs = F.log_softmax(viral_logits, dim=1)
         
         # sarcasm output
-        sarcasm_enc = F.relu(self.sarcasm_output_layer(torch.cat((image_enc, text_enc), dim=1)))
+        sarcasm_enc = F.relu(self.sarcasm_output_layer(feature_enc))
         sarcasm_logits = self.sarcasm_out(sarcasm_enc)
         sarcasm_outputs = F.log_softmax(sarcasm_logits, dim=1)
         
         # humor output
-        humor_enc = F.relu(self.humor_output_layer(torch.cat((image_enc, text_enc), dim=1)))
+        humor_enc = F.relu(self.humor_output_layer(feature_enc))
         humor_logits = self.humor_out(humor_enc)
         humor_outputs = F.log_softmax(humor_logits, dim=1)
         
