@@ -2,15 +2,9 @@ import csv
 import os
 import sys
 import logging
-import torch
 import random
 import math
-import pandas as pd
-from torchvision.transforms.transforms import ToTensor
-from tqdm import tqdm
-from torchvision import transforms
 from torch.utils.data import DataLoader
-from PIL import Image
 
 """Solve import issue"""
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,61 +15,8 @@ sys.path.append(project_root_dir)
 
 from util_scripts.utils import init_logger
 
-tqdm.pandas()
 
-
-class ImageTextDataset(torch.utils.data.Dataset):
-    def __init__(self, tsv_file_path, image_size=224, transformer=transforms.Compose([ToTensor()])):
-        super(ImageTextDataset, self).__init__()
-        
-        self.image_size = image_size
-        self.transformer = transformer
-        
-        # load dataframe
-        self.df = pd.read_csv(tsv_file_path, sep="\t", encoding="utf-8")
-        self.df["tid"] = self.df["tid"].astype(str)
-        self.df["text"] = self.df["text"].astype(str)
-        self.df["image_file"] = self.df["image_file"].astype(str)
-        self.df["label"] = self.df["label"].astype(int)
-        self.df["label_name"] = self.df["label_name"].astype(str)
-        self.df["POLAR"] = self.df["POLAR"].astype(int)
-        self.df["CALL_TO_ACTION"] = self.df["CALL_TO_ACTION"].astype(int)
-        self.df["VIRAL"] = self.df["VIRAL"].astype(int)
-        self.df["SARCASM"] = self.df["SARCASM"].astype(int)
-        self.df["HUMOR"] = self.df["HUMOR"].astype(int)
-    
-    def __len__(self):
-        return len(self.df)
-        
-    def __getitem__(self, idx):
-        image = self.load_image(idx)
-        if self.transformer:
-            image = self.transformer(image)
-            
-        sample = {
-            "tid": self.df["tid"][idx],
-            "text": self.df["text"][idx],
-            "image_file": self.df["image_file"][idx],
-            "image": image,
-            "label": torch.tensor(self.df["label"][idx]),
-            "label_name": self.df["label_name"][idx],
-            "POLAR": torch.tensor(self.df["POLAR"][idx]),
-            "CALL_TO_ACTION": torch.tensor(self.df["CALL_TO_ACTION"][idx]),
-            "VIRAL": torch.tensor(self.df["VIRAL"][idx]),
-            "SARCASM": torch.tensor(self.df["SARCASM"][idx]),
-            "HUMOR": torch.tensor(self.df["HUMOR"][idx]),
-        }
-        
-        return sample
-        
-    def load_image(self, idx):
-        image_file = self.df["image_file"][idx]
-        # open image
-        image = Image.open(image_file).resize((self.image_size, self.image_size), Image.ANTIALIAS).convert("RGB")
-        return image
-    
-    
-def create_partitions(config):
+def create_partitions(config, tsv_fieldnames):
     log_filename = os.path.basename(__file__).split(".")[0]
     init_logger(config.LOGS_ROOT, config.OUTPUT_FILES_NAME)
     logger = logging.getLogger(log_filename)
@@ -110,7 +51,7 @@ def create_partitions(config):
     # write to tsv files
     for batch_name, batch_idx in [("train", train_idx), ("dev", dev_idx), ("test", test_idx)]:
         with open(f"{config.TSV_ROOT}/{batch_name}.tsv", "w") as outfile:
-            tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=["tid", "text", "image_file", "label", "label_name", "POLAR", "CALL_TO_ACTION", "VIRAL", "SARCASM", "HUMOR"])
+            tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=tsv_fieldnames)
             tsv_writer.writeheader()
             for idx in batch_idx:
                 tweet_obj = tweet_obj_list[idx]
@@ -119,13 +60,13 @@ def create_partitions(config):
                 outfile.flush()
                 
 
-def load_dataloaders(config):
+def load_dataloaders(config, dataset):
     batch_size=config.BATCH_SIZE
     tsv_root=config.TSV_ROOT
     
-    train_dataset = ImageTextDataset(f"{tsv_root}/train.tsv")
-    dev_dataset = ImageTextDataset(f"{tsv_root}/dev.tsv")
-    test_dataset = ImageTextDataset(f"{tsv_root}/test.tsv")
+    train_dataset = dataset(f"{tsv_root}/train.tsv")
+    dev_dataset = dataset(f"{tsv_root}/dev.tsv")
+    test_dataset = dataset(f"{tsv_root}/test.tsv")
     
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)

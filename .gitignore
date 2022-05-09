@@ -146,6 +146,7 @@ logs/
 results/
 trained_models/
 models/sentiment_model/
+data_process/military/filter_meme/resnet50d.weights.best
 
 # data
 datasets/

@@ -18,7 +18,7 @@ sys.path.append(project_root_dir)
 
 from util_scripts.utils import init_logger
 from semafor_training.load_data import load_dataloaders
-from models import CLIP_MODEL, ModelWithTemperature
+from models import CLIP_MULTI_MODEL, ModelWithTemperature
 from calibrate_config import CALIBRATE_CONFIG
 
 """Make directories"""
@@ -40,7 +40,7 @@ LOGGER = logging.getLogger(log_filename)
 def calibrate_model(original_model_states_file, calibrated_model_states_file, calibrated_model_file, calibrated_results_file, device):
     """load original model"""
     LOGGER.info(f"Load original model from {original_model_states_file}...")
-    original_model = CLIP_MODEL(device=device, output_size=2).to(device)
+    original_model = CLIP_MULTI_MODEL(device=device, output_size=2).to(device)
     original_model.load_state_dict(torch.load(original_model_states_file, map_location=device))
     
     """load data"""

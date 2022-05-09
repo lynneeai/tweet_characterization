@@ -8,7 +8,6 @@ from tqdm import tqdm
 from torchvision import transforms
 from PIL import Image
 
-
 """Solve import issue"""
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root_dir = f"{current_file_dir}/.."
@@ -28,7 +27,7 @@ LOGGER = logging.getLogger(log_filename)
 """------------------"""
 
 from trainers import create_partitions, load_dataloaders, MULTIMODAL_TRAINER
-from models.clip_sent import CLIP_SENT
+from models import CLIP_MODEL
 
 
 tqdm.pandas()
@@ -46,12 +45,6 @@ class ImageTextDataset(torch.utils.data.Dataset):
         self.df["text"] = self.df["text"].astype(str)
         self.df["image_file"] = self.df["image_file"].astype(str)
         self.df["label"] = self.df["label"].astype(int)
-        self.df["label_name"] = self.df["label_name"].astype(str)
-        self.df["POLAR"] = self.df["POLAR"].astype(int)
-        self.df["CALL_TO_ACTION"] = self.df["CALL_TO_ACTION"].astype(int)
-        self.df["VIRAL"] = self.df["VIRAL"].astype(int)
-        self.df["SARCASM"] = self.df["SARCASM"].astype(int)
-        self.df["HUMOR"] = self.df["HUMOR"].astype(int)
     
     def __len__(self):
         return len(self.df)
@@ -66,13 +59,7 @@ class ImageTextDataset(torch.utils.data.Dataset):
             "text": self.df["text"][idx],
             "image_file": self.df["image_file"][idx],
             "image": image,
-            "label": torch.tensor(self.df["label"][idx]),
-            "label_name": self.df["label_name"][idx],
-            "POLAR": torch.tensor(self.df["POLAR"][idx]),
-            "CALL_TO_ACTION": torch.tensor(self.df["CALL_TO_ACTION"][idx]),
-            "VIRAL": torch.tensor(self.df["VIRAL"][idx]),
-            "SARCASM": torch.tensor(self.df["SARCASM"][idx]),
-            "HUMOR": torch.tensor(self.df["HUMOR"][idx]),
+            "label": torch.tensor(self.df["label"][idx])
         }
         
         return sample
@@ -86,14 +73,17 @@ class ImageTextDataset(torch.utils.data.Dataset):
 
 if TRAIN_CONFIG.RECREATE_PARTITIONS:
     LOGGER.info("Recreating train/test/validate partitions...")
-    create_partitions(TRAIN_CONFIG, tsv_fieldnames=["tid", "text", "image_file", "label", "label_name", "POLAR", "CALL_TO_ACTION", "VIRAL", "SARCASM", "HUMOR"])
+    create_partitions(TRAIN_CONFIG, tsv_fieldnames=["tid", "text", "image_file", "label"])
 train_dataloader, validate_dataloader, test_dataloader = load_dataloaders(TRAIN_CONFIG, ImageTextDataset)
 
 model_states_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.weights.best"
 model_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.pth"
 results_file = f"{TRAIN_CONFIG.RESULTS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}_class_report.txt"
 
-model = CLIP_SENT(device=TRAIN_CONFIG.DEVICE).to(TRAIN_CONFIG.DEVICE)
+model = CLIP_MODEL(device=TRAIN_CONFIG.DEVICE).to(TRAIN_CONFIG.DEVICE)
+if TRAIN_CONFIG.USE_PRETRAINED:
+    LOGGER.info(f"Loading pretrained model from {TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE}...")
+    model.load_state_dict(torch.load(TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE, map_location=TRAIN_CONFIG.DEVICE))
 
 trainer = MULTIMODAL_TRAINER(
     model=model,
