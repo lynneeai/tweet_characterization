@@ -17,11 +17,13 @@ class ModelWithTemperature(nn.Module):
             NOT the softmax (or log softmax)!
     """
 
-    def __init__(self, model, device):
+    def __init__(self, model, device, include_intent_categories=True):
         super(ModelWithTemperature, self).__init__()
         self.model = model
         self.device = device
         self.temperature = nn.Parameter(torch.ones(1))
+        
+        self.include_intent_categories = include_intent_categories
 
     """
     Same input parameters to model.py forward method
@@ -29,8 +31,12 @@ class ModelWithTemperature(nn.Module):
     """
 
     def forward(self, image_files, texts):
-        _, logits, intent_outputs_dict = self.model(image_files, texts)
-        return self.temperature_scale(logits), logits, intent_outputs_dict
+        if self.include_intent_categories:
+            _, logits, intent_outputs_dict = self.model(image_files, texts)
+            return self.temperature_scale(logits), logits, intent_outputs_dict
+        else:
+            _, logits = self.model(image_files, texts)
+            return self.temperature_scale(logits), logits
 
     def temperature_scale(self, logits):
         """
