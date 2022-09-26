@@ -48,9 +48,9 @@ def init_logger(log_folder, log_filename, timestamp=True):
     
 
 def boolean_string(s):
-    if s.lower() not in {"false", "true", "t", "f"}:
+    if s.lower() not in {"false", "true", "t", "f", "yes", "no", "y", "n"}:
         raise ValueError('Not a valid boolean string')
-    return s.lower() == "true" or s.lower() == "t"
+    return s.lower() == "true" or s.lower() == "t" or s.lower() == "yes" or s.lower() == "y"
 
 
 def remove_url(txt):
@@ -70,3 +70,14 @@ def is_english(text):
         print(text)
         return False
     return all_english
+
+
+def count_file_lines(fname):
+    """
+    Counts number of lines in file
+    """
+    lines = 0
+    with open(fname, "r") as infile:
+        for line in infile:
+            lines += 1
+    return lines

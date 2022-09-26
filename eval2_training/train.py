@@ -20,7 +20,7 @@ sys.path.append(project_root_dir)
 from config import TRAIN_CONFIG
 from util_scripts.utils import init_logger
 from util_scripts.utils import program_sleep
-from models import CLIP_MODEL
+from models import CLIP_MULTI_MODEL
 
 """Make directories"""
 if not os.path.exists(TRAIN_CONFIG.LOGS_ROOT):
@@ -252,7 +252,7 @@ if __name__ == "__main__":
     model_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.pth"
     results_file = f"{TRAIN_CONFIG.RESULTS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}_class_report.txt"
     
-    model = CLIP_MODEL(device=TRAIN_CONFIG.DEVICE, output_size=2).to(TRAIN_CONFIG.DEVICE)
+    model = CLIP_MULTI_MODEL(device=TRAIN_CONFIG.DEVICE, output_size=2).to(TRAIN_CONFIG.DEVICE)
     if TRAIN_CONFIG.USE_PRETRAINED:
         LOGGER.info(f"Loading pretrained model from {TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE}...")
         model.load_state_dict(torch.load(TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE, map_location=TRAIN_CONFIG.DEVICE))

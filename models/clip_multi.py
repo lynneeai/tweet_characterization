@@ -15,9 +15,9 @@ sys.path.append(project_root_dir)
 """------------------"""
 
 
-class CLIP_MODEL(nn.Module):
+class CLIP_MULTI_MODEL(nn.Module):
     def __init__(self, device, output_size):
-        super(CLIP_MODEL, self).__init__()
+        super(CLIP_MULTI_MODEL, self).__init__()
         
         self.device = device
 

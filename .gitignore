@@ -131,9 +131,9 @@ dmypy.json
 # vscode
 .vscode/
 
-# configs file
-config.py
-*config.py
+# # configs file
+# config.py
+# *config.py
 
 # glove
 glove.twitter.27B/
@@ -146,6 +146,7 @@ logs/
 results/
 trained_models/
 models/sentiment_model/
+data_process/military/filter_meme/resnet50d.weights.best
 
 # data
 datasets/
