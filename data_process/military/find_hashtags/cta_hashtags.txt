@@ -10,7 +10,11 @@
 #isupportputin
 #supportrussia
 #closetheskyoverukraine
+<<<<<<< Updated upstream
 #stopwarinukraine
 
 language and vision
 search for lastname
+=======
+#stopwarinukraine
+>>>>>>> Stashed changes

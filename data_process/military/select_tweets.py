@@ -11,7 +11,11 @@ sys.path.append(current_file_dir)
 sys.path.append(project_root_dir)
 """------------------"""
 
+<<<<<<< Updated upstream
 from util_scripts.utils import count_file_lines, remove_url
+=======
+from util_scripts.utils import count_file_lines
+>>>>>>> Stashed changes
 
 # input files
 NEG_TSV = f"{project_root_dir}/datasets/military/negative/negative_processed_with_images.tsv"
@@ -52,7 +56,11 @@ with open(f"{CTA_FOLDER}/tweets.tsv", "w") as outfile:
         for image_file in row["image_files"].split(","):
             tsv_writer.writerow({
                 "tid": row["tid"],
+<<<<<<< Updated upstream
                 "text": remove_url(row["text"]),
+=======
+                "text": row["text"],
+>>>>>>> Stashed changes
                 "image_file": f"{CTA_IMAGE_FOLDER}/{image_file}",
                 "label": 1
             })
@@ -61,7 +69,11 @@ with open(f"{CTA_FOLDER}/tweets.tsv", "w") as outfile:
         for image_file in row["image_files"].split(","):
             tsv_writer.writerow({
                 "tid": row["tid"],
+<<<<<<< Updated upstream
                 "text": remove_url(row["text"]),
+=======
+                "text": row["text"],
+>>>>>>> Stashed changes
                 "image_file": f"{NEG_IMAGE_FOLDER}/{image_file}",
                 "label": 0
             })
@@ -81,7 +93,11 @@ with open(f"{DE_FOLDER}/tweets.tsv", "w") as outfile:
         for image_file in row["image_files"].split(","):
             tsv_writer.writerow({
                 "tid": row["tid"],
+<<<<<<< Updated upstream
                 "text": remove_url(row["text"]),
+=======
+                "text": row["text"],
+>>>>>>> Stashed changes
                 "image_file": f"{DE_IMAGE_FOLDER}/{image_file}",
                 "label": 1
             })
@@ -90,7 +106,11 @@ with open(f"{DE_FOLDER}/tweets.tsv", "w") as outfile:
         for image_file in row["image_files"].split(","):
             tsv_writer.writerow({
                 "tid": row["tid"],
+<<<<<<< Updated upstream
                 "text": remove_url(row["text"]),
+=======
+                "text": row["text"],
+>>>>>>> Stashed changes
                 "image_file": f"{NEG_IMAGE_FOLDER}/{image_file}",
                 "label": 0
             })

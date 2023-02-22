@@ -2,11 +2,6 @@ import csv
 import os
 import sys
 import logging
-<<<<<<< Updated upstream
-import random
-import math
-from torch.utils.data import DataLoader
-=======
 import torch
 import random
 import math
@@ -16,7 +11,6 @@ from tqdm import tqdm
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from PIL import Image
->>>>>>> Stashed changes
 
 """Solve import issue"""
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,12 +19,17 @@ sys.path.append(current_file_dir)
 sys.path.append(project_root_dir)
 """------------------"""
 
+from config import TRAIN_CONFIG
 from util_scripts.utils import init_logger
 
-<<<<<<< Updated upstream
+"""Init logger"""
+if not os.path.exists(TRAIN_CONFIG.LOGS_ROOT):
+    os.makedirs(TRAIN_CONFIG.LOGS_ROOT)
+log_filename = os.path.basename(__file__).split(".")[0]
+init_logger(TRAIN_CONFIG.LOGS_ROOT, log_filename)
+LOGGER = logging.getLogger(log_filename)
+"""------------------"""
 
-def create_partitions(config, tsv_fieldnames):
-=======
 tqdm.pandas()
 
 
@@ -85,19 +84,11 @@ class ImageTextDataset(torch.utils.data.Dataset):
         return image
     
     
-def create_partitions(config):
->>>>>>> Stashed changes
-    log_filename = os.path.basename(__file__).split(".")[0]
-    init_logger(config.LOGS_ROOT, config.OUTPUT_FILES_NAME)
-    logger = logging.getLogger(log_filename)
-        
-    logger.info("Creating partitions...")
-    
-    train_split=config.TRAIN_SPLIT
-    dev_split=config.DEV_SPLIT
+def create_partitions(train_split=TRAIN_CONFIG.TRAIN_SPLIT, dev_split=TRAIN_CONFIG.DEV_SPLIT):
+    LOGGER.info("Creating partitions...")
     
     tweet_obj_list = []
-    with open(f"{config.TSV_ROOT}/tweets.tsv", "r") as infile:
+    with open(f"{TRAIN_CONFIG.TSV_ROOT}/tweets.tsv", "r") as infile:
         tsv_reader = csv.DictReader(infile, delimiter="\t")
         for row in tsv_reader:
             tweet_obj_list.append(dict(row))
@@ -120,12 +111,8 @@ def create_partitions(config):
     
     # write to tsv files
     for batch_name, batch_idx in [("train", train_idx), ("dev", dev_idx), ("test", test_idx)]:
-        with open(f"{config.TSV_ROOT}/{batch_name}.tsv", "w") as outfile:
-<<<<<<< Updated upstream
-            tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=tsv_fieldnames)
-=======
+        with open(f"{TRAIN_CONFIG.TSV_ROOT}/{batch_name}.tsv", "w") as outfile:
             tsv_writer = csv.DictWriter(outfile, delimiter="\t", fieldnames=["tid", "text", "image_file", "label", "label_name", "POLAR", "CALL_TO_ACTION", "VIRAL", "SARCASM", "HUMOR"])
->>>>>>> Stashed changes
             tsv_writer.writeheader()
             for idx in batch_idx:
                 tweet_obj = tweet_obj_list[idx]
@@ -134,23 +121,10 @@ def create_partitions(config):
                 outfile.flush()
                 
 
-<<<<<<< Updated upstream
-def load_dataloaders(config, dataset):
-    batch_size=config.BATCH_SIZE
-    tsv_root=config.TSV_ROOT
-    
-    train_dataset = dataset(f"{tsv_root}/train.tsv")
-    dev_dataset = dataset(f"{tsv_root}/dev.tsv")
-    test_dataset = dataset(f"{tsv_root}/test.tsv")
-=======
-def load_dataloaders(config):
-    batch_size=config.BATCH_SIZE
-    tsv_root=config.TSV_ROOT
-    
-    train_dataset = ImageTextDataset(f"{tsv_root}/train.tsv")
-    dev_dataset = ImageTextDataset(f"{tsv_root}/dev.tsv")
-    test_dataset = ImageTextDataset(f"{tsv_root}/test.tsv")
->>>>>>> Stashed changes
+def load_dataloaders(batch_size=TRAIN_CONFIG.BATCH_SIZE):
+    train_dataset = ImageTextDataset(f"{TRAIN_CONFIG.TSV_ROOT}/train.tsv")
+    dev_dataset = ImageTextDataset(f"{TRAIN_CONFIG.TSV_ROOT}/dev.tsv")
+    test_dataset = ImageTextDataset(f"{TRAIN_CONFIG.TSV_ROOT}/test.tsv")
     
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)

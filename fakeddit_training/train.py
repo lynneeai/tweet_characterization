@@ -13,7 +13,11 @@ from transformers import AdamW
 from config import TRAIN_CONFIG
 from util_scripts.utils import init_logger
 from util_scripts.utils import program_sleep
+<<<<<<< Updated upstream
 from models import CLIP_MULTI_MODEL
+=======
+from models import CLIP_MODEL
+>>>>>>> Stashed changes
 
 """Make directories"""
 if not os.path.exists(TRAIN_CONFIG.LOGS_ROOT):
@@ -193,7 +197,11 @@ if __name__ == "__main__":
     model_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.pth"
     results_file = f"{TRAIN_CONFIG.RESULTS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}_class_report.txt"
     
+<<<<<<< Updated upstream
     model = CLIP_MULTI_MODEL().to(TRAIN_CONFIG.DEVICE)
+=======
+    model = CLIP_MODEL().to(TRAIN_CONFIG.DEVICE)
+>>>>>>> Stashed changes
     if TRAIN_CONFIG.USE_PRETRAINED:
         LOGGER.info(f"Loading pretrained model from {TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE}...")
         model.load_state_dict(torch.load(TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE, map_location=TRAIN_CONFIG.DEVICE))

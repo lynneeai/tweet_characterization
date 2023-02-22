@@ -1,0 +1,15 @@
+../../datasets/fakeddit/selected_images/train/c6nzgkz.jpg
+../../datasets/fakeddit/selected_images/train/cjllu0x.jpg
+../../datasets/fakeddit/selected_images/train/d74r9nu.jpg
+../../datasets/fakeddit/selected_images/train/cafzidr.jpg
+../../datasets/fakeddit/selected_images/train/cdibe2s.jpg
+../../datasets/fakeddit/selected_images/train/d7qvohs.jpg
+../../datasets/fakeddit/selected_images/train/eof4b6z.jpg
+../../datasets/fakeddit/selected_images/train/c8fjng3.jpg
+../../datasets/fakeddit/selected_images/train/cbotfac.jpg
+../../datasets/fakeddit/selected_images/train/czakx33.jpg
+../../datasets/fakeddit/selected_images/train/d1wn1fy.jpg
+../../datasets/fakeddit/selected_images/train/co9wsn6.jpg
+../../datasets/fakeddit/selected_images/train/caiy9u6.jpg
+../../datasets/fakeddit/selected_images/validate/dq7t2ox.jpg
+../../datasets/fakeddit/selected_images/validate/djkn1ig.jpg

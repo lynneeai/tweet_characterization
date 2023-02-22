@@ -20,11 +20,7 @@ sys.path.append(project_root_dir)
 from config import TRAIN_CONFIG
 from util_scripts.utils import init_logger
 from util_scripts.utils import program_sleep
-<<<<<<< Updated upstream
-from models import CLIP_MULTI_MODEL
-=======
 from models import CLIP_MODEL
->>>>>>> Stashed changes
 
 """Make directories"""
 if not os.path.exists(TRAIN_CONFIG.LOGS_ROOT):
@@ -228,15 +224,10 @@ class TRAINER(object):
             intent_predicts = torch.max(intent_outputs_dict[intent], 1)[1]
             intent_predicts = intent_predicts.data.cpu().numpy().tolist()
             intent_labels = intents_dict[intent].data.cpu().numpy().tolist()
-            try:
-                intent_cr_str = classification_report(intent_labels, intent_predicts, target_names=[f"NON-{intent}", intent], digits=5)
-                LOGGER.info(f"=============={intent} CLASS REPORT==============")
-                LOGGER.info(intent_cr_str)
-                outfile.write(f"{intent_cr_str}\n")
-            except:
-                LOGGER.info(f"=============={intent} CLASS REPORT==============")
-                LOGGER.info(f"{intent} class does not have any positive samples!\n\n")
-                outfile.write(f"{intent} class does not have any positive samples!\n\n")
+            intent_cr_str = classification_report(intent_labels, intent_predicts, target_names=[f"NON-{intent}", intent], digits=5)
+            LOGGER.info(f"=============={intent} CLASS REPORT==============")
+            LOGGER.info(intent_cr_str)
+            outfile.write(f"{intent_cr_str}\n")
         
         outfile.close()
         
@@ -256,11 +247,7 @@ if __name__ == "__main__":
     model_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.pth"
     results_file = f"{TRAIN_CONFIG.RESULTS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}_class_report.txt"
     
-<<<<<<< Updated upstream
-    model = CLIP_MULTI_MODEL(device=TRAIN_CONFIG.DEVICE, output_size=2).to(TRAIN_CONFIG.DEVICE)
-=======
     model = CLIP_MODEL(device=TRAIN_CONFIG.DEVICE, output_size=2).to(TRAIN_CONFIG.DEVICE)
->>>>>>> Stashed changes
     if TRAIN_CONFIG.USE_PRETRAINED:
         LOGGER.info(f"Loading pretrained model from {TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE}...")
         model.load_state_dict(torch.load(TRAIN_CONFIG.PRETRAINED_MODEL_STATES_FILE, map_location=TRAIN_CONFIG.DEVICE))

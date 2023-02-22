@@ -65,7 +65,11 @@ class MULTIMODAL_TRAINER(object):
             if self.include_intents:
                 batch_outputs, _, batch_intent_outputs_dict = self.model(batch_image_files, batch_texts)
             else:
+<<<<<<< Updated upstream
                 batch_outputs = self.model(batch_image_files, batch_texts)[0]
+=======
+                batch_outputs = self.model(batch_image_files, batch_texts)
+>>>>>>> Stashed changes
             
             outputs.append(batch_outputs.detach())
             labels.append(batch_labels)
@@ -131,7 +135,11 @@ class MULTIMODAL_TRAINER(object):
                     intent_names=self.intent_names
                 )
             else:
+<<<<<<< Updated upstream
                 batch_outputs = self.model(batch_image_files, batch_texts)[0]
+=======
+                batch_outputs = self.model(batch_image_files, batch_texts)
+>>>>>>> Stashed changes
                 batch_loss = self.model.loss(outputs=batch_outputs, labels=batch_labels)
             
             self.optimizer.zero_grad()
@@ -213,7 +221,11 @@ class MULTIMODAL_TRAINER(object):
         
         class_report_str = classification_report(labels, predicts, target_names=self.label_names, digits=5)
         class_report_dict = classification_report(labels, predicts, target_names=self.label_names, digits=5, output_dict=True)
+<<<<<<< Updated upstream
         self.logger.info("==============CLASS REPORT==============")
+=======
+        self.logger.info("==============MALICIOUSNESS CLASS REPORT==============")
+>>>>>>> Stashed changes
         self.logger.info(class_report_str)
         outfile.write(f"{class_report_str}\n")
         

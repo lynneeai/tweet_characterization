@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+<<<<<<< Updated upstream
 import torch
 import pandas as pd
 from torchvision.transforms.transforms import ToTensor
@@ -8,6 +9,8 @@ from tqdm import tqdm
 from torchvision import transforms
 from PIL import Image
 
+=======
+>>>>>>> Stashed changes
 
 """Solve import issue"""
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +34,7 @@ from trainers import create_partitions, load_dataloaders, MULTIMODAL_TRAINER
 from models.clip_sent import CLIP_SENT
 
 
+<<<<<<< Updated upstream
 tqdm.pandas()
 
 class ImageTextDataset(torch.utils.data.Dataset):
@@ -88,6 +92,12 @@ if TRAIN_CONFIG.RECREATE_PARTITIONS:
     LOGGER.info("Recreating train/test/validate partitions...")
     create_partitions(TRAIN_CONFIG, tsv_fieldnames=["tid", "text", "image_file", "label", "label_name", "POLAR", "CALL_TO_ACTION", "VIRAL", "SARCASM", "HUMOR"])
 train_dataloader, validate_dataloader, test_dataloader = load_dataloaders(TRAIN_CONFIG, ImageTextDataset)
+=======
+if TRAIN_CONFIG.RECREATE_PARTITIONS:
+    LOGGER.info("Recreating train/test/validate partitions...")
+    create_partitions(TRAIN_CONFIG)
+train_dataloader, validate_dataloader, test_dataloader = load_dataloaders(TRAIN_CONFIG)
+>>>>>>> Stashed changes
 
 model_states_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.weights.best"
 model_file = f"{TRAIN_CONFIG.TRAINED_MODELS_ROOT}/{TRAIN_CONFIG.OUTPUT_FILES_NAME}.pth"

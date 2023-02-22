@@ -17,13 +17,20 @@ class ModelWithTemperature(nn.Module):
             NOT the softmax (or log softmax)!
     """
 
+<<<<<<< Updated upstream
     def __init__(self, model, device, include_intent_categories=True):
+=======
+    def __init__(self, model, device):
+>>>>>>> Stashed changes
         super(ModelWithTemperature, self).__init__()
         self.model = model
         self.device = device
         self.temperature = nn.Parameter(torch.ones(1))
+<<<<<<< Updated upstream
         
         self.include_intent_categories = include_intent_categories
+=======
+>>>>>>> Stashed changes
 
     """
     Same input parameters to model.py forward method
@@ -31,12 +38,17 @@ class ModelWithTemperature(nn.Module):
     """
 
     def forward(self, image_files, texts):
+<<<<<<< Updated upstream
         if self.include_intent_categories:
             _, logits, intent_outputs_dict = self.model(image_files, texts)
             return self.temperature_scale(logits), logits, intent_outputs_dict
         else:
             _, logits = self.model(image_files, texts)
             return self.temperature_scale(logits), logits
+=======
+        _, logits, intent_outputs_dict = self.model(image_files, texts)
+        return self.temperature_scale(logits), logits, intent_outputs_dict
+>>>>>>> Stashed changes
 
     def temperature_scale(self, logits):
         """

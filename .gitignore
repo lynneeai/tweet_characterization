@@ -131,9 +131,9 @@ dmypy.json
 # vscode
 .vscode/
 
-# # configs file
-# config.py
-# *config.py
+# configs file
+config.py
+*config.py
 
 # glove
 glove.twitter.27B/

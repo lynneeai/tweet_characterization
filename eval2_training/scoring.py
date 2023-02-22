@@ -13,7 +13,11 @@ sys.path.append(current_file_dir)
 sys.path.append(project_root_dir)
 """------------------"""
 
+<<<<<<< Updated upstream
 from models import CLIP_MULTI_MODEL, ModelWithTemperature
+=======
+from models import CLIP_MODEL, ModelWithTemperature
+>>>>>>> Stashed changes
 from load_data import load_dataloaders
 from calibrate_config import CALIBRATE_CONFIG
 
@@ -74,8 +78,13 @@ def inference(model, image_file, text, threshold=0):
 if __name__ == "__main__":
     
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+<<<<<<< Updated upstream
     CLIP_MULTI_MODEL = CLIP_MULTI_MODEL(device=device, output_size=2).to(device)
     intent_model = ModelWithTemperature(CLIP_MULTI_MODEL, device=device).to(device)
+=======
+    clip_model = CLIP_MODEL(device=device, output_size=2).to(device)
+    intent_model = ModelWithTemperature(clip_model, device=device).to(device)
+>>>>>>> Stashed changes
     intent_model.load_state_dict(torch.load(
         "./trained_models/covid19+climate_calibrated/clip_multi.weights.best", 
         map_location=device

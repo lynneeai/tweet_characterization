@@ -17,12 +17,8 @@ sys.path.append(project_root_dir)
 """------------------"""
 
 from util_scripts.utils import init_logger
-from semafor_training.load_data import load_dataloaders
-<<<<<<< Updated upstream
-from models import CLIP_MULTI_MODEL, ModelWithTemperature
-=======
+from load_data import load_dataloaders
 from models import CLIP_MODEL, ModelWithTemperature
->>>>>>> Stashed changes
 from calibrate_config import CALIBRATE_CONFIG
 
 """Make directories"""
@@ -44,16 +40,18 @@ LOGGER = logging.getLogger(log_filename)
 def calibrate_model(original_model_states_file, calibrated_model_states_file, calibrated_model_file, calibrated_results_file, device):
     """load original model"""
     LOGGER.info(f"Load original model from {original_model_states_file}...")
-<<<<<<< Updated upstream
-    original_model = CLIP_MULTI_MODEL(device=device, output_size=2).to(device)
-=======
-    original_model = CLIP_MODEL(device=device, output_size=2).to(device)
->>>>>>> Stashed changes
+    original_model = CLIP_MODEL().to(device)
     original_model.load_state_dict(torch.load(original_model_states_file, map_location=device))
     
     """load data"""
     LOGGER.info("Loading dataloaders...")
-    _, validate_dataloader, test_dataloader = load_dataloaders(batch_size=CALIBRATE_CONFIG.BATCH_SIZE, tsv_root=CALIBRATE_CONFIG.TSV_ROOT)
+    LOGGER.info("Loading merged validation/test sets...")
+    _, validate_dataloader, test_dataloader = load_dataloaders(CALIBRATE_CONFIG.BATCH_SIZE, tsv_root=CALIBRATE_CONFIG.TSV_ROOT, image_dir=CALIBRATE_CONFIG.IMAGE_ROOT)
+    dataset_testloader = {}
+    for dataset in ["covid19", "climate_change", "military_vehicles"]:
+        LOGGER.info(f"Loading test set for {dataset}...")
+        _, _, dataset_test_dataloader = load_dataloaders(1, f"./processed_data/fakeddit_{dataset}", image_dir=CALIBRATE_CONFIG.IMAGE_ROOT)
+        dataset_testloader[dataset] = dataset_test_dataloader
     
     """model calibration"""    
     LOGGER.info("Calibrating model...")
@@ -114,6 +112,12 @@ def calibrate_model(original_model_states_file, calibrated_model_states_file, ca
     
     LOGGER.info("Testing calibrated model...")
     test_results_dict = test(calibrated_model, test_dataloader, calibrated_results_file)
+    
+    """test calibrated model for each dataset"""
+    for dataset in ["covid19", "climate_change", "military_vehicles"]:
+        LOGGER.info(f"Testing calibrated model for {dataset}...")
+        dataset_results_file = f"./results/fakeddit_{dataset}/{CALIBRATE_CONFIG.OUTPUT_FILES_NAME}_cali_class_report.txt"
+        test_results_dict = test(calibrated_model, dataset_testloader[dataset], dataset_results_file)
     
     return calibrated_model, test_results_dict
 
